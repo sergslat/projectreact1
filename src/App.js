@@ -1,42 +1,74 @@
-import React, {useState} from 'react';
-import Tweet from './Tweet'
+import React, {useEffect,useState} from 'react';
+import Recipe from './Recipe'
+
+
 
 
 function App(){
 
-  const [users,setUsers] = useState([
-    {name:'Tito', tweet:'random tweet', likes:'9'},
-    {name:'Sergio', tweet:'lololol tweet', likes:'12329'},
-    {name:'Claudia', tweet:'lorem ipsum', likes:'219'},
-    {name:'Silvana', tweet:'123 tweet', likes:'290'}
+  const APP_ID = '273280e1';
+  const APP_KEY='bae976ffb4f4ad721d934d977dc4b408'
+  
+  const[recipes, setRecipes] = useState([]);
+  const [search, setSearch] = useState  ('');
+  const [query,setQuery] = useState ('chicken') //default  = chicken
+
+  useEffect( async() =>{
+
+   getRecipes(); 
+
+  },[query]); //executed at beggining and everytime 'query' is updated
+
+
+  const getRecipes = async () => {
+
+    const response = await fetch(`https://api.edamam.com/search?q=${query}&app_id=${APP_ID}&app_key=${APP_KEY}`)
+    const data = await response.json();
+    setRecipes(data.hits);
+    console.log(recipes)
+  }
+
+  const updateSearch = e =>{
+
+    setSearch (e.target.value);
     
-  ]);
+  }
 
- const [isRed, setRed] = useState(false)
- const [count, setCount] = useState(0);
+  const getSearch = e =>{
+    e.preventDefault();
+    setQuery(search);
+    setSearch(''); 
+  }
 
- const increment = () =>{
-   setCount (count+1);
-   setRed(!isRed)
- }
-
-  // const counter  = 0;
   return(
 
-    <div className='app'>
-      {/* <Tweet name='Sergio' tweet='Hola 1st tweet!' likes='2099'/>
-      <Tweet name='Tito' tweet='random tweet' likes='29'/>
-      <Tweet name='Pistacho' tweet='hola a todos' likes='12099'/>
-      <Tweet name='Maylo' tweet='Woof Woof' likes='23'/> */}
+    <div className='App'>
+      
 
-      <h1 className={isRed ? 'red' : ''}>Change my color!</h1>
-      <button onClick={increment}>Increment</button>
-      <h1>{count}</h1>
-      {/* {users.map(user => (
-        <Tweet name={user.name} tweet={user.tweet} likes={user.likes}/>
-      ))} */}
+      <form onSubmit= {getSearch} className = 'search-form' >
+        <input className='search-bar' type="text" value ={search} onChange={updateSearch}/>
+        <button
+          
+          className='search-button' type='submit'>Search
+        </button>
+      </form>
 
+      <div className='recipes'>
+        {recipes.map(recipe =>( //not {} but () because we return a html}
 
+          <Recipe
+          key={recipe.recipe.label}
+          label = {recipe.recipe.label}
+          calories = {recipe.recipe.calories}
+          image={recipe.recipe.image}
+          ingredients={recipe.recipe.ingredients}
+          />
+
+        ))}
+      </div>
+
+      
+    
             
     </div>
   );
